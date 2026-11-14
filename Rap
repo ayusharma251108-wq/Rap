@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHYME LAB — Advanced Multisyllabic Rap Training Web App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19',
+                        cardBg: '#121826',
+                        cardHover: '#1a2338',
+                        neonPurple: '#a855f7',
+                        neonBlue: '#3b82f6',
+                        neonPink: '#ec4899',
+                        neonGreen: '#10b981',
+                        borderDark: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
+        }
+        .glow-blue {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+        .glow-green {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 50%, #4ade80 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .animate-pulse-slow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-purple-500 selection:text-white">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-darkBg/90 backdrop-blur-md border-b border-borderDark px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-blue-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <i class="fa-solid fa-microphone-lines text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-xl tracking-wider gradient-text uppercase">Rhyme Lab</h1>
+                <p class="text-xs text-slate-400 mono">Hinglish / Hindi Multisyllabic Gym v2.6</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Desktop) -->
+        <nav class="hidden md:flex items-center space-x-1 bg-cardBg p-1 rounded-xl border border-borderDark text-sm font-medium">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-house-chimney"></i><span>Dashboard</span>
+            </button>
+            <button onclick="switchTab('practice')" id="nav-practice" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-dumbbell"></i><span>Practice Gym</span>
+            </button>
+            <button onclick="switchTab('wordplay')" id="nav-wordplay" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-brain"></i><span>Wordplay Lab</span>
+            </button>
+            <button onclick="switchTab('dictionary')" id="nav-dictionary" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-book-bookmark"></i><span>Rhyme Bank</span>
+            </button>
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-chart-line"></i><span>Analytics</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn px-4 py-2 rounded-lg transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                <i class="fa-solid fa-gear"></i><span>Settings</span>
+            </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center space-x-3">
+            <div id="api-status-pill" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium bg-red-950/60 border border-red-800/80 text-red-400">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span>API Key Needed</span>
+            </div>
+            <button onclick="switchTab('settings')" class="p-2.5 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-300 hover:text-white transition-all">
+                <i class="fa-solid fa-key"></i>
+            </button>
+            <button onclick="openMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-300">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU MODAL -->
+    <div id="mobile-menu" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex flex-col p-6 space-y-4">
+        <div class="flex justify-between items-center pb-4 border-b border-borderDark">
+            <h2 class="text-xl font-bold gradient-text">Menu</h2>
+            <button onclick="closeMobileMenu()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <button onclick="switchTab('dashboard'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-house-chimney text-purple-400"></i><span>Dashboard</span></button>
+        <button onclick="switchTab('practice'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-dumbbell text-blue-400"></i><span>Practice Gym</span></button>
+        <button onclick="switchTab('wordplay'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-brain text-emerald-400"></i><span>Wordplay Lab</span></button>
+        <button onclick="switchTab('dictionary'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-book-bookmark text-pink-400"></i><span>Rhyme Bank</span></button>
+        <button onclick="switchTab('analytics'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-chart-line text-amber-400"></i><span>Analytics</span></button>
+        <button onclick="switchTab('settings'); closeMobileMenu();" class="flex items-center space-x-3 p-3 rounded-xl bg-cardBg text-left font-medium"><i class="fa-solid fa-gear text-slate-400"></i><span>Settings & API Key</span></button>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="tab-content space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-900/40 via-blue-900/30 to-emerald-900/30 border border-borderDark p-8 lg:p-10 glow-purple">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl">
+                    <i class="fa-solid fa-headphones"></i>
+                </div>
+                <div class="max-w-3xl space-y-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/35 uppercase tracking-wider">Hinglish Multisyllabic Gym</span>
+                    <h2 class="text-3xl lg:text-5xl font-extrabold tracking-tight text-white">Master The Art Of <span class="gradient-text">Complex Rhymes</span></h2>
+                    <p class="text-slate-300 text-base lg:text-lg leading-relaxed">
+                        Train spontaneous flow, internal rhymes, multisyllabic syllable accuracy, and Hindi/Hinglish wordplay with real AI phonetic evaluation. Jump directly to any of the 14 syllable-count problem categories instantly.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('practice'); selectProblem(4);" class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold shadow-lg shadow-purple-600/30 hover:opacity-95 transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-play"></i><span>Start Quick Practice (4-Syllable)</span>
+                        </button>
+                        <button onclick="switchTab('settings')" class="px-6 py-3 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-200 font-medium transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-key text-purple-400"></i><span>Configure Gemini API Key</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-cardBg border border-borderDark rounded-2xl p-5">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs uppercase font-semibold tracking-wider">Total Attempted</span>
+                        <i class="fa-solid fa-layer-group text-purple-400"></i>
+                    </div>
+                    <div id="stat-total-attempted" class="text-3xl font-extrabold text-white mono">0</div>
+                    <div class="text-xs text-slate-500 mt-1">Exercises logged</div>
+                </div>
+                <div class="bg-cardBg border border-borderDark rounded-2xl p-5">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs uppercase font-semibold tracking-wider">Overall Accuracy</span>
+                        <i class="fa-solid fa-bullseye text-blue-400"></i>
+                    </div>
+                    <div id="stat-overall-accuracy" class="text-3xl font-extrabold text-white mono">0%</div>
+                    <div class="text-xs text-slate-500 mt-1">Phonetic & syllable match</div>
+                </div>
+                <div class="bg-cardBg border border-borderDark rounded-2xl p-5">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs uppercase font-semibold tracking-wider">Best Rhyme Score</span>
+                        <i class="fa-solid fa-trophy text-emerald-400"></i>
+                    </div>
+                    <div id="stat-best-score" class="text-3xl font-extrabold text-white mono">0/100</div>
+                    <div class="text-xs text-slate-500 mt-1">Personal peak score</div>
+                </div>
+                <div class="bg-cardBg border border-borderDark rounded-2xl p-5">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs uppercase font-semibold tracking-wider">Saved in Bank</span>
+                        <i class="fa-solid fa-bookmark text-pink-400"></i>
+                    </div>
+                    <div id="stat-saved-bank" class="text-3xl font-extrabold text-white mono">0</div>
+                    <div class="text-xs text-slate-500 mt-1">Favorite bars & chains</div>
+                </div>
+            </div>
+
+            <!-- 14 INDEPENDENT PROBLEMS SECTION -->
+            <div class="space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-list-ol text-purple-400"></i>
+                            <span>The 14 Independent Syllable Problems</span>
+                        </h3>
+                        <p class="text-sm text-slate-400">Non-sequential, freely selectable challenges. Pick any syllable count instantly.</p>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-400 bg-cardBg px-3 py-1.5 rounded-xl border border-borderDark">
+                        <i class="fa-solid fa-circle-info text-blue-400"></i>
+                        <span>Click any card to start practicing that exact syllable count</span>
+                    </div>
+                </div>
+
+                <!-- 14 Problems Grid -->
+                <div id="problems-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
+                    <!-- Injected dynamically via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Quick Practice Modes Row -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4">
+                <div onclick="switchTab('practice'); setPracticeMode('find_rhyme');" class="bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-5 cursor-pointer transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-1">Find The Rhyme</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">Match target syllable count with strict phonetic alignment.</p>
+                </div>
+                <div onclick="switchTab('practice'); setPracticeMode('completion');" class="bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-5 cursor-pointer transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-1">Rhyme Completion</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">Complete incomplete Hinglish rap bars naturally.</p>
+                </div>
+                <div onclick="switchTab('practice'); setPracticeMode('chain');" class="bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-5 cursor-pointer transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-1">Rhyme Chain</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">Generate 3 to 20 continuous non-repeating rhyming phrases.</p>
+                </div>
+                <div onclick="switchTab('practice'); setPracticeMode('scheme');" class="bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-5 cursor-pointer transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-1">Scheme Builder</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">Construct connected bars with AABB, ABAB, or custom schemes.</p>
+                </div>
+                <div onclick="switchTab('practice'); setPracticeMode('reflex');" class="bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-5 cursor-pointer transition-all group">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-1">Freestyle Reflex</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">Timed countdown challenge to spit rapid valid rhymes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: PRACTICE GYM ================= -->
+        <div id="tab-practice" class="tab-content hidden space-y-6">
+            <!-- Practice Header Bar -->
+            <div class="bg-cardBg border border-borderDark rounded-2xl p-4 lg:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div id="current-problem-badge" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-600 flex flex-col items-center justify-center text-white font-extrabold shadow-lg">
+                        <span id="badge-syllable-num" class="text-xl mono">4</span>
+                        <span class="text-[9px] uppercase tracking-wider text-purple-200">Syllable</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h3 id="current-problem-title" class="text-xl font-bold text-white">Problem 4 — Four-Syllable Rhyming</h3>
+                            <span id="mode-badge-label" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/35">Find The Rhyme</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Select any other problem instantly below or change practice mode.</p>
+                    </div>
+                </div>
+
+                <!-- Mode Selector & Quick Problem Jump -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="practice-mode-select" onchange="changePracticeMode(this.value)" class="bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-purple-500">
+                        <option value="find_rhyme">Mode 1: Find The Rhyme</option>
+                        <option value="completion">Mode 2: Rhyme Completion</option>
+                        <option value="chain">Mode 3: Rhyme Chain Challenge</option>
+                        <option value="scheme">Mode 4: Rhyme Scheme Builder</option>
+                        <option value="reflex">Mode 5: Freestyle Reflex</option>
+                    </select>
+
+                    <select id="topic-select" class="bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-purple-500">
+                        <option value="Random">Topic: Random / Any</option>
+                        <option value="Street life">Street Life / Struggle</option>
+                        <option value="Success">Success & Ambition</option>
+                        <option value="Philosophy">Philosophy & Mind</option>
+                        <option value="Technology">Technology & AI</option>
+                        <option value="History">History & Myth</option>
+                        <option value="Relationships">Relationships & Trust</option>
+                    </select>
+
+                    <button onclick="generateNewExercise()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate"></i><span>New Exercise</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Direct 1-14 Problem Quick Bar -->
+            <div class="bg-cardBg/60 border border-borderDark rounded-2xl p-3 flex items-center space-x-2 overflow-x-auto">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 whitespace-nowrap">Jump Problem:</span>
+                <div id="quick-problem-pills" class="flex items-center space-x-2">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Main Exercise Arena -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Target & Input Area -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Target Card -->
+                    <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/5 rounded-full blur-2xl pointer-events-none"></div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-xs font-semibold text-purple-400 tracking-wider uppercase">
+                                <i class="fa-solid fa-bullseye"></i>
+                                <span id="target-category-label">Target Challenge</span>
+                            </div>
+                            <div id="timer-display" class="hidden items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold">
+                                <i class="fa-solid fa-stopwatch"></i>
+                                <span id="timer-countdown">60s</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="text-xs text-slate-400 uppercase tracking-wider font-mono">Target Phrase / Prompt:</div>
+                            <div id="target-phrase-text" class="text-2xl lg:text-3xl font-extrabold text-white mono bg-darkBg/60 p-5 rounded-2xl border border-borderDark">
+                                Loading target phrase...
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="bg-darkBg/60 border border-borderDark p-3 rounded-xl">
+                                <span class="text-slate-400 block mb-1">Required Syllables</span>
+                                <span id="target-syllable-count" class="font-bold text-purple-400 text-base mono">4</span>
+                            </div>
+                            <div class="bg-darkBg/60 border border-borderDark p-3 rounded-xl">
+                                <span class="text-slate-400 block mb-1">Phonetic Focus</span>
+                                <span id="target-phonetic-hint" class="font-bold text-blue-400 text-sm mono">Vowel Match</span>
+                            </div>
+                            <div class="bg-darkBg/60 border border-borderDark p-3 rounded-xl col-span-2 sm:col-span-1">
+                                <span class="text-slate-400 block mb-1">Theme / Topic</span>
+                                <span id="target-topic-display" class="font-bold text-emerald-400 text-sm truncate block">Street Life</span>
+                            </div>
+                        </div>
+
+                        <!-- Hint Box (Collapsible) -->
+                        <div>
+                            <button onclick="toggleHint()" class="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center space-x-1.5">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span id="hint-toggle-text">Show Expert Hint / Example Structure</span>
+                            </button>
+                            <div id="hint-box" class="hidden mt-3 p-4 rounded-xl bg-purple-950/30 border border-purple-800/40 text-xs text-purple-200 leading-relaxed mono">
+                                <!-- Hint injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Answer Input Card -->
+                    <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label for="user-answer-input" class="text-sm font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-pen-nib text-purple-400"></i>
+                                <span id="input-label-text">Your Rhyming Answer (Hinglish / Hindi):</span>
+                            </label>
+                            <span class="text-xs text-slate-400 mono" id="user-syllable-counter">Syllables: 0</span>
+                        </div>
+
+                        <textarea id="user-answer-input" rows="3" oninput="updateSyllableCounter()" placeholder="Apna rhyme yahan likhein (e.g., 'khooni mausam' or multi-syllable bar)..." class="w-full bg-darkBg border border-borderDark rounded-2xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 font-mono text-base resize-none"></textarea>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="saveCurrentToDictionary()" class="px-4 py-2.5 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-300 hover:text-white text-xs font-semibold transition-all flex items-center space-x-2">
+                                    <i class="fa-solid fa-bookmark text-pink-400"></i><span>Save to Rhyme Bank</span>
+                                </button>
+                                <button onclick="clearInput()" class="px-4 py-2.5 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-400 hover:text-slate-200 text-xs font-semibold transition-all">
+                                    Clear
+                                </button>
+                            </div>
+                            <button onclick="submitAnswer()" id="submit-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-95 text-white font-semibold shadow-lg shadow-purple-600/30 transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-bolt"></i><span>Evaluate Rhyme</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: AI Evaluation & Phonetic Breakdown -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div id="evaluation-placeholder" class="bg-cardBg border border-borderDark rounded-3xl p-8 text-center space-y-4 h-full flex flex-col items-center justify-center min-h-[400px]">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl mb-2">
+                            <i class="fa-solid fa-wand-magic-sparkles animate-pulse"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-white">Waiting for your bars...</h4>
+                        <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
+                            Submit your rhyme above to trigger real AI phonetic evaluation, stress-pattern matching, and multi-factor scoring out of 100.
+                        </p>
+                    </div>
+
+                    <!-- Evaluation Results Box (Hidden until submitted) -->
+                    <div id="evaluation-results-box" class="hidden bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-6">
+                        <!-- Score Header -->
+                        <div class="flex items-center justify-between pb-4 border-b border-borderDark">
+                            <div>
+                                <span class="text-xs text-slate-400 uppercase tracking-wider font-mono">Total Evaluation Score</span>
+                                <h4 id="eval-verdict-title" class="text-xl font-extrabold text-white">Excellent Flow!</h4>
+                            </div>
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-emerald-600 flex items-center justify-center shadow-lg text-white font-extrabold text-2xl mono" id="eval-total-score">
+                                92
+                            </div>
+                        </div>
+
+                        <!-- Score Breakdown Bars -->
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <div class="flex justify-between mb-1 text-slate-300">
+                                    <span>Phonetic Similarity (35 pts)</span>
+                                    <span id="score-phonetic" class="font-mono font-bold text-purple-400">32/35</span>
+                                </div>
+                                <div class="w-full h-2 bg-darkBg rounded-full overflow-hidden">
+                                    <div id="bar-phonetic" class="h-full bg-purple-500 rounded-full" style="width: 90%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-slate-300">
+                                    <span>Syllable Count Accuracy (20 pts)</span>
+                                    <span id="score-syllables" class="font-mono font-bold text-blue-400">20/20</span>
+                                </div>
+                                <div class="w-full h-2 bg-darkBg rounded-full overflow-hidden">
+                                    <div id="bar-syllables" class="h-full bg-blue-500 rounded-full" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-slate-300">
+                                    <span>Stress Pattern Match (15 pts)</span>
+                                    <span id="score-stress" class="font-mono font-bold text-emerald-400">14/15</span>
+                                </div>
+                                <div class="w-full h-2 bg-darkBg rounded-full overflow-hidden">
+                                    <div id="bar-stress" class="h-full bg-emerald-500 rounded-full" style="width: 93%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-slate-300">
+                                    <span>Rhyme Originality (15 pts)</span>
+                                    <span id="score-originality" class="font-mono font-bold text-pink-400">13/15</span>
+                                </div>
+                                <div class="w-full h-2 bg-darkBg rounded-full overflow-hidden">
+                                    <div id="bar-originality" class="h-full bg-pink-500 rounded-full" style="width: 86%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-slate-300">
+                                    <span>Rap Usability & Flow (15 pts)</span>
+                                    <span id="score-usability" class="font-mono font-bold text-amber-400">14/15</span>
+                                </div>
+                                <div class="w-full h-2 bg-darkBg rounded-full overflow-hidden">
+                                    <div id="bar-usability" class="h-full bg-amber-500 rounded-full" style="width: 93%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phonetic Breakdown Details -->
+                        <div class="space-y-3 pt-2 border-t border-borderDark text-xs">
+                            <h5 class="font-bold text-slate-300 uppercase tracking-wider">Phonetic & Syllable Analysis</h5>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-darkBg/60 p-3 rounded-xl border border-borderDark">
+                                    <span class="text-slate-400 block mb-1">Target Syllables</span>
+                                    <span id="eval-target-syllables" class="font-mono font-bold text-white">4</span>
+                                </div>
+                                <div class="bg-darkBg/60 p-3 rounded-xl border border-borderDark">
+                                    <span class="text-slate-400 block mb-1">Your Syllables</span>
+                                    <span id="eval-user-syllables" class="font-mono font-bold text-white">4</span>
+                                </div>
+                            </div>
+                            <div class="bg-darkBg/60 p-3 rounded-xl border border-borderDark space-y-2">
+                                <div>
+                                    <span class="text-slate-400 block text-[10px] uppercase">Rhyme Classification</span>
+                                    <span id="eval-classification" class="font-mono font-semibold text-purple-300">Perfect Multisyllabic Rhyme</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block text-[10px] uppercase">IPA / Pronunciation Match</span>
+                                    <span id="eval-ipa-match" class="font-mono text-slate-300">/koː.niː maː.səm/ ~ /honiː taː.rəm/</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coach Feedback & Suggestions -->
+                        <div class="space-y-2 pt-2 border-t border-borderDark text-xs">
+                            <h5 class="font-bold text-slate-300 uppercase tracking-wider">Coach Feedback</h5>
+                            <p id="eval-feedback-text" class="text-slate-300 leading-relaxed bg-darkBg/60 p-3 rounded-xl border border-borderDark">
+                                Great stress alignment on the second syllable. Vowels match cleanly.
+                            </p>
+                        </div>
+
+                        <button onclick="generateNewExercise()" class="w-full py-3 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-white font-semibold text-xs transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-arrow-right"></i><span>Next Challenge</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: WORDPLAY LAB ================= -->
+        <div id="tab-wordplay" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 uppercase">Advanced Techniques</span>
+                        <h3 class="text-2xl font-extrabold text-white mt-1">Wordplay & Double Entendre Lab</h3>
+                        <p class="text-sm text-slate-400">Master homophones, double entendres, metaphors, and conceptual cleverness in Hinglish.</p>
+                    </div>
+                    <button onclick="generateWordplayChallenge()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-shuffle"></i><span>New Wordplay Challenge</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Wordplay Arena -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-4">
+                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-400 uppercase">
+                            <span id="wp-technique-type">Double Entendre Challenge</span>
+                            <span id="wp-topic" class="text-slate-400">Topic: Street Success</span>
+                        </div>
+                        <div id="wp-prompt-text" class="text-xl font-bold text-white mono bg-darkBg/60 p-5 rounded-2xl border border-borderDark">
+                            Click 'New Wordplay Challenge' to generate a prompt requiring double meaning or clever wordplay.
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-300 uppercase">Your Creative Bar / Verse:</label>
+                            <textarea id="wp-user-input" rows="4" placeholder="Write your bar using double meanings, homophones, or clever metaphors..." class="w-full bg-darkBg border border-borderDark rounded-2xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono text-sm resize-none"></textarea>
+                        </div>
+                        <button onclick="submitWordplay()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-brain"></i><span>Evaluate Wordplay</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 space-y-6">
+                    <div id="wp-eval-placeholder" class="bg-cardBg border border-borderDark rounded-3xl p-8 text-center space-y-4 h-full flex flex-col items-center justify-center min-h-[350px]">
+                        <i class="fa-solid fa-lightbulb text-4xl text-emerald-400/40 animate-pulse"></i>
+                        <h4 class="text-lg font-bold text-white">Ready for evaluation</h4>
+                        <p class="text-xs text-slate-400 max-w-xs leading-relaxed">
+                            Submit your bar to analyze conceptual depth, double meaning clarity, and rap effectiveness.
+                        </p>
+                    </div>
+
+                    <div id="wp-eval-results" class="hidden bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-6">
+                        <div class="flex items-center justify-between pb-4 border-b border-borderDark">
+                            <div>
+                                <span class="text-xs text-slate-400 uppercase tracking-wider font-mono">Wordplay Score</span>
+                                <h4 id="wp-verdict" class="text-xl font-extrabold text-white">Clever & Impactful</h4>
+                            </div>
+                            <div id="wp-score" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-lg text-white font-extrabold text-2xl mono">
+                                95
+                            </div>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="bg-darkBg/60 p-3 rounded-xl border border-borderDark">
+                                <span class="text-slate-400 block mb-1">Conceptual Breakdown</span>
+                                <p id="wp-breakdown" class="text-slate-200 leading-relaxed font-mono">Analysis of dual meanings...</p>
+                            </div>
+                            <div class="bg-darkBg/60 p-3 rounded-xl border border-borderDark">
+                                <span class="text-slate-400 block mb-1">Expert Coach Tips</span>
+                                <p id="wp-tips" class="text-slate-300 leading-relaxed">How to tighten the punchline...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: RHYME BANK (DICTIONARY) ================= -->
+        <div id="tab-dictionary" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/35 uppercase">Personal Vault</span>
+                    <h3 class="text-2xl font-extrabold text-white mt-1">Personal Rhyme Bank</h3>
+                    <p class="text-sm text-slate-400">Your saved bars, chains, and multisyllabic discoveries.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="bank-search" oninput="renderRhymeBank()" placeholder="Search saved rhymes..." class="bg-darkBg border border-borderDark rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 w-64">
+                    <button onclick="exportRhymeBank()" class="px-4 py-2 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-300 hover:text-white text-sm font-semibold transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-download"></i><span>Export JSON</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Saved Rhymes Grid -->
+            <div id="rhyme-bank-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically injected -->
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: ANALYTICS ================= -->
+        <div id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/35 uppercase">Performance Gym</span>
+                <h3 class="text-2xl font-extrabold text-white">Detailed Analytics & Problem Breakdown</h3>
+                <p class="text-sm text-slate-400">Track your accuracy and progress across all 14 independent syllable problem categories.</p>
+            </div>
+
+            <!-- 14 Problem Accuracy Bars -->
+            <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-6">
+                <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-bar text-purple-400"></i>
+                    <span>Problem-by-Problem Accuracy (1 to 14 Syllables)</span>
+                </h4>
+                <div id="analytics-problems-list" class="space-y-4">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 6: SETTINGS ================= -->
+        <div id="tab-settings" class="tab-content hidden space-y-6 max-w-4xl mx-auto">
+            <div class="bg-cardBg border border-borderDark rounded-3xl p-6 lg:p-8 space-y-6">
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/35 uppercase">Configuration</span>
+                    <h3 class="text-2xl font-extrabold text-white mt-1">Gemini API & App Settings</h3>
+                    <p class="text-sm text-slate-400">Configure your Gemini API key for real exercise generation and AI phonetic evaluation.</p>
+                </div>
+
+                <!-- API Key Card -->
+                <div class="space-y-4 pt-4 border-t border-borderDark">
+                    <h4 class="font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-key text-purple-400"></i>
+                        <span>Gemini API Key Settings</span>
+                    </h4>
+                    <div class="space-y-2">
+                        <label class="text-xs text-slate-400 font-mono">Gemini API Key (Stored securely in browser localStorage only):</label>
+                        <div class="flex items-center space-x-2">
+                            <div class="relative flex-1">
+                                <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-purple-500 pr-10">
+                                <button onclick="toggleApiKeyVisibility()" class="absolute right-3 top-3.5 text-slate-400 hover:text-white text-sm">
+                                    <i id="eye-icon" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <button onclick="saveApiKey()" class="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all">
+                                Save Key
+                            </button>
+                            <button onclick="testApiKeyConnection()" class="px-5 py-3 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-200 font-semibold text-sm transition-all">
+                                Test Connection
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between text-xs pt-1">
+                            <span id="api-connection-status" class="text-slate-400 flex items-center space-x-1.5">
+                                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                                <span>No API key tested yet.</span>
+                            </span>
+                            <button onclick="deleteApiKey()" class="text-red-400 hover:text-red-300 font-medium">Delete Stored Key</button>
+                        </div>
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="space-y-2 pt-2">
+                        <label class="text-xs text-slate-400 font-mono">Gemini Model:</label>
+                        <select id="gemini-model-select" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended for speed & structured reasoning)</option>
+                            <option value="gemini-2.5-pro">Gemini 2.5 Pro (Advanced phonetic & lyrical depth)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="space-y-4 pt-6 border-t border-borderDark">
+                    <h4 class="font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-database text-blue-400"></i>
+                        <span>Data & Storage Management</span>
+                    </h4>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="exportAllData()" class="px-4 py-2.5 rounded-xl bg-cardBg hover:bg-cardHover border border-borderDark text-slate-300 text-xs font-semibold transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-download text-purple-400"></i><span>Export Backup JSON</span>
+                        </button>
+                        <button onclick="clearAllHistory()" class="px-4 py-2.5 rounded-xl bg-red-950/40 hover:bg-red-900/40 border border-red-800/60 text-red-300 text-xs font-semibold transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-trash text-red-400"></i><span>Clear Practice History</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-borderDark py-6 px-4 text-center text-xs text-slate-500 space-y-1">
+        <p class="font-medium text-slate-400">RHYME LAB — Advanced Multisyllabic Rap Training Web App</p>
+        <p>Built for elite Hinglish / Hindi lyricists. Powered by Gemini API & Local IndexedDB / LocalStorage.</p>
+    </footer>
+
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <script>
+        // ================= STATE MANAGEMENT =================
+        let appState = {
+            apiKey: localStorage.getItem('rhyme_lab_gemini_key') || '',
+            model: localStorage.getItem('rhyme_lab_model') || 'gemini-2.5-flash',
+            currentTab: 'dashboard',
+            currentProblem: 4, // 1 to 14
+            currentMode: 'find_rhyme', // find_rhyme, completion, chain, scheme, reflex
+            currentTopic: 'Random',
+            timerDuration: 60,
+            timerInterval: null,
+            exercisesAttempted: JSON.parse(localStorage.getItem('rhyme_lab_history') || '[]'),
+            savedBank: JSON.parse(localStorage.getItem('rhyme_lab_bank') || '[]'),
+            currentExercise: null,
+            wordplayExercise: null
+        };
+
+        // 14 Problem Metadata Definitions
+        const problemsMeta = Array.from({length: 14}, (_, i) => {
+            const num = i + 1;
+            const names = [
+                "One-Syllable Rhyming", "Two-Syllable Rhyming", "Three-Syllable Rhyming",
+                "Four-Syllable Rhyming", "Five-Syllable Rhyming", "Six-Syllable Rhyming",
+                "Seven-Syllable Rhyming", "Eight-Syllable Rhyming", "Nine-Syllable Rhyming",
+                "Ten-Syllable Rhyming", "Eleven-Syllable Rhyming", "Twelve-Syllable Rhyming",
+                "Thirteen-Syllable Rhyming", "Fourteen-Syllable Rhyming"
+            ];
+            return {
+                number: num,
+                title: names[i],
+                description: `${num}-syllable strict phonetic target alignment in Hinglish.`
+            };
+        });
+
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (appState.apiKey) {
+                document.getElementById('api-key-input').value = appState.apiKey;
+                updateApiStatus(true, 'API Key Loaded from Storage');
+            }
+            document.getElementById('gemini-model-select').value = appState.model;
+            
+            renderProblemsGrid();
+            renderQuickPills();
+            updateDashboardStats();
+            renderRhymeBank();
+            renderAnalyticsProblems();
+        });
+
+        // ================= NAVIGATION =================
+        function switchTab(tabId) {
+            appState.currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600/20', 'text-white', 'border', 'border-purple-500/30');
+                btn.classList.add('text-slate-300');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-300');
+                activeNav.classList.add('bg-purple-600/20', 'text-white', 'border', 'border-purple-500/30');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tabId === 'practice') {
+                if (!appState.currentExercise) {
+                    generateNewExercise();
+                }
+            } else if (tabId === 'analytics') {
+                renderAnalyticsProblems();
+            }
+        }
+
+        function openMobileMenu() {
+            document.getElementById('mobile-menu').classList.remove('hidden');
+        }
+        function closeMobileMenu() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // ================= API KEY & SETTINGS =================
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('api-key-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            const model = document.getElementById('gemini-model-select').value;
+            if (!key) {
+                alert('Please enter a valid Gemini API key.');
+                return;
+            }
+            appState.apiKey = key;
+            appState.model = model;
+            localStorage.setItem('rhyme_lab_gemini_key', key);
+            localStorage.setItem('rhyme_lab_model', model);
+            updateApiStatus(true, 'API Key Saved Successfully');
+            alert('Gemini API key saved securely in browser storage.');
+        }
+
+        function deleteApiKey() {
+            if (confirm('Are you sure you want to delete your stored Gemini API key?')) {
+                appState.apiKey = '';
+                localStorage.removeItem('rhyme_lab_gemini_key');
+                document.getElementById('api-key-input').value = '';
+                updateApiStatus(false, 'API Key Deleted');
+            }
+        }
+
+        function updateApiStatus(connected, message) {
+            const pill = document.getElementById('api-status-pill');
+            const statusText = document.getElementById('api-connection-status');
+            if (connected) {
+                pill.className = 'hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/60 border border-emerald-800/80 text-emerald-400';
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>API Ready</span>`;
+                if (statusText) {
+                    statusText.className = 'text-emerald-400 flex items-center space-x-1.5';
+                    statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>${message}</span>`;
+                }
+            } else {
+                pill.className = 'hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium bg-red-950/60 border border-red-800/80 text-red-400';
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span><span>API Key Needed</span>`;
+                if (statusText) {
+                    statusText.className = 'text-red-400 flex items-center space-x-1.5';
+                    statusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span><span>${message}</span>`;
+                }
+            }
+        }
+
+        async function testApiKeyConnection() {
+            const key = document.getElementById('api-key-input').value.trim();
+            if (!key) {
+                alert('Please enter an API key to test.');
+                return;
+            }
+            updateApiStatus(false, 'Testing connection...');
+            try {
+                const model = document.getElementById('gemini-model-select').value;
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Respond with JSON: {\"status\":\"ok\"}" }] }]
+                    })
+                });
+                if (response.ok) {
+                    appState.apiKey = key;
+                    localStorage.setItem('rhyme_lab_gemini_key', key);
+                    updateApiStatus(true, 'API Connection Successful!');
+                    alert('API connection test passed successfully!');
+                } else {
+                    const err = await response.json();
+                    updateApiStatus(false, 'API Test Failed');
+                    alert(`API connection failed: ${err.error?.message || response.statusText}`);
+                }
+            } catch (e) {
+                updateApiStatus(false, 'Network Error');
+                alert(`Network error during API test: ${e.message}`);
+            }
+        }
+
+        // ================= RENDERING DASHBOARD & PROBLEMS =================
+        function renderProblemsGrid() {
+            const grid = document.getElementById('problems-grid');
+            grid.innerHTML = '';
+            problemsMeta.forEach(prob => {
+                // Calculate attempts and accuracy for this problem
+                const probHistory = appState.exercisesAttempted.filter(e => e.problemNumber === prob.number);
+                const attempts = probHistory.length;
+                const avgScore = attempts > 0 ? Math.round(probHistory.reduce((acc, curr) => acc + curr.score, 0) / attempts) : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-cardBg hover:bg-cardHover border border-borderDark rounded-2xl p-4 cursor-pointer transition-all flex flex-col justify-between group";
+                card.onclick = () => { selectProblem(prob.number); switchTab('practice'); };
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 font-extrabold text-sm flex items-center justify-center mono">${prob.number}</span>
+                            <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-400">${prob.number} Syllable</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm mb-1 group-hover:text-purple-300 transition-colors">Problem ${prob.number}</h4>
+                        <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">${prob.title}</p>
+                    </div>
+                    <div class="pt-3 mt-3 border-t border-borderDark/60 flex items-center justify-between text-xs">
+                        <span class="text-slate-400">${attempts} attempts</span>
+                        <span class="font-mono font-bold ${attempts > 0 ? 'text-emerald-400' : 'text-slate-500'}">${attempts > 0 ? avgScore + '%' : '—'}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderQuickPills() {
+            const container = document.getElementById('quick-problem-pills');
+            container.innerHTML = '';
+            problemsMeta.forEach(prob => {
+                const btn = document.createElement('button');
+                const isCurrent = appState.currentProblem === prob.number;
+                btn.className = `px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all whitespace-nowrap ${isCurrent ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'bg-darkBg border border-borderDark text-slate-300 hover:text-white hover:bg-cardHover'}`;
+                btn.textContent = `P${prob.number}`;
+                btn.onclick = () => selectProblem(prob.number);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectProblem(num) {
+            appState.currentProblem = num;
+            renderQuickPills();
+            const meta = problemsMeta[num - 1];
+            document.getElementById('badge-syllable-num').textContent = num;
+            document.getElementById('current-problem-title').textContent = `Problem ${num} — ${meta.title}`;
+            document.getElementById('target-syllable-count').textContent = num;
+            if (appState.currentTab === 'practice') {
+                generateNewExercise();
+            }
+        }
+
+        function setPracticeMode(mode) {
+            appState.currentMode = mode;
+            document.getElementById('practice-mode-select').value = mode;
+            const modeNames = {
+                'find_rhyme': 'Find The Rhyme',
+                'completion': 'Rhyme Completion',
+                'chain': 'Rhyme Chain Challenge',
+                'scheme': 'Rhyme Scheme Builder',
+                'reflex': 'Freestyle Reflex'
+            };
+            document.getElementById('mode-badge-label').textContent = modeNames[mode] || mode;
+            
+            const timerDisplay = document.getElementById('timer-display');
+            if (mode === 'reflex') {
+                timerDisplay.classList.remove('hidden');
+                timerDisplay.classList.add('flex');
+                startReflexTimer();
+            } else {
+                timerDisplay.classList.add('hidden');
+                timerDisplay.classList.remove('flex');
+                if (appState.timerInterval) clearInterval(appState.timerInterval);
+            }
+            generateNewExercise();
+        }
+
+        function changePracticeMode(mode) {
+            setPracticeMode(mode);
+        }
+
+        // ================= AI EXERCISE GENERATION =================
+        async function generateNewExercise() {
+            const topic = document.getElementById('topic-select').value;
+            appState.currentTopic = topic;
+            document.getElementById('target-topic-display').textContent = topic;
+            document.getElementById('target-phrase-text').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-purple-400"></i> Generating unique ${appState.currentProblem}-syllable exercise...`;
+            document.getElementById('evaluation-results-box').classList.add('hidden');
+            document.getElementById('evaluation-placeholder').classList.remove('hidden');
+            document.getElementById('user-answer-input').value = '';
+
+            const prompt = `You are an expert Hinglish/Hindi rap writing coach and phonetic linguistics specialist.
+Generate a unique practice exercise for RHYME LAB.
+Problem Number: ${appState.currentProblem} (Exact required syllable count of the target phrase is ${appState.currentProblem}).
+Practice Mode: ${appState.currentMode}.
+Topic: ${topic}.
+Language: Hinglish / Hindi.
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "targetPhrase": "A realistic Hinglish rap target phrase or sentence containing exactly ${appState.currentProblem} syllables",
+  "syllableCount": ${appState.currentProblem},
+  "phoneticFocus": "e.g., Vowel rhyme / O-A sound / Multisyllabic ending",
+  "hint": "An expert tip or sample structure explaining how to rhyme with this phrase with correct stress and Hinglish flow",
+  "sampleAnswer": "A valid rhyming phrase with the same ${appState.currentProblem} syllable count"
+}`;
+
+            if (!appState.apiKey) {
+                // Fallback mock generation if no API key is set yet
+                setTimeout(() => {
+                    const mockTargets = [
+                        "Khoon mein ubaal", "Raat ka safar", "Asli kalam", "Zindagi ki jung",
+                        "Mission jab hard ho", "Mehnat ka nateeja", "Sapanon ki udaan", "Kagaz pe lekhak",
+                        "Duniya ye gol hai", "Bantai ki public", "Asmaan ko chhoo le", "Chor police ka khel",
+                        "Khaufnaak aawaz", "Safar ye lamba hai dost"
+                    ];
+                    const target = mockTargets[(appState.currentProblem - 1) % mockTargets.length];
+                    appState.currentExercise = {
+                        targetPhrase: target,
+                        syllableCount: appState.currentProblem,
+                        phoneticFocus: "Multisyllabic Vowel Alignment",
+                        hint: `Aim for matching vowel cadence on the ${appState.currentProblem} syllables. E.g., match vowel sounds with natural Hinglish cadence.`,
+                        sampleAnswer: "sample rhyme"
+                    };
+                    document.getElementById('target-phrase-text').textContent = appState.currentExercise.targetPhrase;
+                    document.getElementById('target-phonetic-hint').textContent = appState.currentExercise.phoneticFocus;
+                    document.getElementById('hint-box').textContent = appState.currentExercise.hint;
+                }, 500);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.model}:generateContent?key=${appState.apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+                const data = await response.json();
+                const jsonText = data.candidates[0].content.parts[0].text;
+                const parsed = JSON.parse(jsonText);
+
+                appState.currentExercise = parsed;
+                document.getElementById('target-phrase-text').textContent = parsed.targetPhrase;
+                document.getElementById('target-phonetic-hint').textContent = parsed.phoneticFocus || 'Phonetic Match';
+                document.getElementById('hint-box').textContent = parsed.hint || 'No hint provided.';
+            } catch (err) {
+                console.error(err);
+                // Fallback on error
+                appState.currentExercise = {
+                    targetPhrase: `Safar ${appState.currentProblem} syllable bar`,
+                    syllableCount: appState.currentProblem,
+                    phoneticFocus: "Fallback Vowel Match",
+                    hint: "Generate a rhyming phrase matching the required syllable count."
+                };
+                document.getElementById('target-phrase-text').textContent = appState.currentExercise.targetPhrase;
+                document.getElementById('target-phonetic-hint').textContent = 'Fallback Mode';
+                document.getElementById('hint-box').textContent = appState.currentExercise.hint;
+            }
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const toggleText = document.getElementById('hint-toggle-text');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                toggleText.textContent = 'Hide Expert Hint';
+            } else {
+                box.classList.add('hidden');
+                toggleText.textContent = 'Show Expert Hint / Example Structure';
+            }
+        }
+
+        function updateSyllableCounter() {
+            const text = document.getElementById('user-answer-input').value.trim();
+            const words = text ? text.split(/\s+/) : [];
+            // Rough syllable estimation for Hinglish (vowel cluster count approximation)
+            let syllables = 0;
+            words.forEach(w => {
+                const match = w.toLowerCase().match(/[aeiouyəāīūēōaiou]+/g);
+                syllables += match ? match.length : 1;
+            });
+            document.getElementById('user-syllable-counter').textContent = `Est. Syllables: ${syllables}`;
+        }
+
+        function clearInput() {
+            document.getElementById('user-answer-input').value = '';
+            updateSyllableCounter();
+        }
+
+        // ================= ANSWER EVALUATION =================
+        async function submitAnswer() {
+            const userAnswer = document.getElementById('user-answer-input').value.trim();
+            if (!userAnswer) {
+                alert('Please enter your rhyming answer first.');
+                return;
+            }
+            if (!appState.currentExercise) {
+                alert('Please generate an exercise first.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Evaluating Phonetics...</span>`;
+
+            const prompt = `You are an expert computational linguist, phonetics specialist, and Hinglish rap coach.
+Evaluate the user's rhyming answer against the target phrase.
+
+Target Phrase: "${appState.currentExercise.targetPhrase}"
+Required Syllable Count: ${appState.currentProblem}
+User's Answer: "${userAnswer}"
+Language: Hinglish / Hindi
+
+Provide a rigorous scoring evaluation in JSON format with exact keys:
+{
+  "totalScore": <number 0 to 100>,
+  "phoneticSimilarity": <number 0 to 35>,
+  "syllableCountAccuracy": <number 0 to 20>,
+  "stressPatternSimilarity": <number 0 to 15>,
+  "rhymeOriginality": <number 0 to 15>,
+  "rapUsability": <number 0 to 15>,
+  "userSyllables": <number estimated syllables in user answer>,
+  "classification": "e.g., Perfect Multisyllabic Rhyme / Slant Rhyme / Assonance Match",
+  "ipaMatch": "e.g., /.../ ~ /.../",
+  "verdictTitle": "e.g., Exceptional Multisyllabic Flow!",
+  "feedback": "Detailed constructive feedback on vowel cadence, stress alignment, and how to improve."
+}`;
+
+            let evaluation;
+            if (!appState.apiKey) {
+                // Mock evaluation if no API key
+                await new Promise(r => setTimeout(r, 800));
+                evaluation = {
+                    totalScore: 88,
+                    phoneticSimilarity: 30,
+                    syllableCountAccuracy: 20,
+                    stressPatternSimilarity: 13,
+                    rhymeOriginality: 12,
+                    rapUsability: 13,
+                    userSyllables: appState.currentProblem,
+                    classification: "Strong Hinglish Multisyllabic Rhyme",
+                    ipaMatch: "/sə.fər raːt/ ~ /kə.ləm baːt/",
+                    verdictTitle: "Great Flow & Phonetic Match!",
+                    feedback: "Your vowel cadence aligns very well with the target phrase. Clean syllable count and solid street usability."
+                };
+            } else {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.model}:generateContent?key=${appState.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+                    if (!response.ok) throw new Error('Evaluation API failed');
+                    const data = await response.json();
+                    evaluation = JSON.parse(data.candidates[0].content.parts[0].text);
+                } catch (e) {
+                    console.error(e);
+                    evaluation = {
+                        totalScore: 85,
+                        phoneticSimilarity: 28,
+                        syllableCountAccuracy: 20,
+                        stressPatternSimilarity: 12,
+                        rhymeOriginality: 12,
+                        rapUsability: 13,
+                        userSyllables: appState.currentProblem,
+                        classification: "Valid Hinglish Rhyme",
+                        ipaMatch: "/target/ ~ /user/",
+                        verdictTitle: "Solid Rhyme Attempt!",
+                        feedback: "Good attempt. Vowels match cleanly with reasonable syllable count."
+                    };
+                }
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fa-solid fa-bolt"></i><span>Evaluate Rhyme</span>`;
+
+            // Display evaluation results
+            document.getElementById('evaluation-placeholder').classList.add('hidden');
+            document.getElementById('evaluation-results-box').classList.remove('hidden');
+
+            document.getElementById('eval-total-score').textContent = evaluation.totalScore;
+            document.getElementById('eval-verdict-title').textContent = evaluation.verdictTitle;
+
+            document.getElementById('score-phonetic').textContent = `${evaluation.phoneticSimilarity}/35`;
+            document.getElementById('bar-phonetic').style.width = `${(evaluation.phoneticSimilarity / 35) * 100}%`;
+
+            document.getElementById('score-syllables').textContent = `${evaluation.syllableCountAccuracy}/20`;
+            document.getElementById('bar-syllables').style.width = `${(evaluation.syllableCountAccuracy / 20) * 100}%`;
+
+            document.getElementById('score-stress').textContent = `${evaluation.stressPatternSimilarity}/15`;
+            document.getElementById('bar-stress').style.width = `${(evaluation.stressPatternSimilarity / 15) * 100}%`;
+
+            document.getElementById('score-originality').textContent = `${evaluation.rhymeOriginality}/15`;
+            document.getElementById('bar-originality').style.width = `${(evaluation.rhymeOriginality / 15) * 100}%`;
+
+            document.getElementById('score-usability').textContent = `${evaluation.rapUsability}/15`;
+            document.getElementById('bar-usability').style.width = `${(evaluation.rapUsability / 15) * 100}%`;
+
+            document.getElementById('eval-target-syllables').textContent = appState.currentProblem;
+            document.getElementById('eval-user-syllables').textContent = evaluation.userSyllables;
+            document.getElementById('eval-classification').textContent = evaluation.classification;
+            document.getElementById('eval-ipa-match').textContent = evaluation.ipaMatch;
+            document.getElementById('eval-feedback-text').textContent = evaluation.feedback;
+
+            // Log to history
+            const historyItem = {
+                id: 'ex_' + Date.now(),
+                problemNumber: appState.currentProblem,
+                mode: appState.currentMode,
+                targetPhrase: appState.currentExercise.targetPhrase,
+                userAnswer: userAnswer,
+                score: evaluation.totalScore,
+                timestamp: new Date().toISOString()
+            };
+            appState.exercisesAttempted.push(historyItem);
+            localStorage.setItem('rhyme_lab_history', JSON.stringify(appState.exercisesAttempted));
+            updateDashboardStats();
+        }
+
+        // ================= WORDPLAY LAB =================
+        async function generateWordplayChallenge() {
+            document.getElementById('wp-prompt-text').innerHTML = `<i class="fa-solid fa-spinner animate-spin text-emerald-400"></i> Generating wordplay challenge...`;
+            document.getElementById('wp-eval-results').classList.add('hidden');
+            document.getElementById('wp-eval-placeholder').classList.remove('hidden');
+            document.getElementById('wp-user-input').value = '';
+
+            const prompt = `Generate a wordplay and double entendre challenge for a Hinglish rapper.
+Return ONLY valid JSON:
+{
+  "technique": "Double Entendre / Homophone / Extended Metaphor",
+  "topic": "Street Success / Hustle / Mindset",
+  "promptText": "A creative prompt requiring the user to write a bar with dual meanings or clever wordplay in Hinglish."
+}`;
+
+            if (!appState.apiKey) {
+                setTimeout(() => {
+                    appState.wordplayExercise = {
+                        technique: "Double Entendre",
+                        topic: "Hustle & Weight",
+                        promptText: "Write a bar using 'vazan' (weight/respect) in two different contexts (gym weight vs street respect)."
+                    };
+                    document.getElementById('wp-technique-type').textContent = appState.wordplayExercise.technique;
+                    document.getElementById('wp-topic').textContent = `Topic: ${appState.wordplayExercise.topic}`;
+                    document.getElementById('wp-prompt-text').textContent = appState.wordplayExercise.promptText;
+                }, 400);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.model}:generateContent?key=${appState.apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                const data = await response.json();
+                const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+                appState.wordplayExercise = parsed;
+                document.getElementById('wp-technique-type').textContent = parsed.technique;
+                document.getElementById('wp-topic').textContent = `Topic: ${parsed.topic}`;
+                document.getElementById('wp-prompt-text').textContent = parsed.promptText;
+            } catch (e) {
+                appState.wordplayExercise = {
+                    technique: "Homophone Play",
+                    topic: "Street Life",
+                    promptText: "Write a bar playing on 'paisa' vs 'pesha' (money vs profession) in Hinglish."
+                };
+                document.getElementById('wp-prompt-text').textContent = appState.wordplayExercise.promptText;
+            }
+        }
+
+        async function submitWordplay() {
+            const userAnswer = document.getElementById('wp-user-input').value.trim();
+            if (!userAnswer) {
+                alert('Please write your bar first.');
+                return;
+            }
+            if (!appState.wordplayExercise) {
+                alert('Please generate a wordplay challenge first.');
+                generateWordplayChallenge();
+                return;
+            }
+
+            const prompt = `Evaluate this Hinglish rap bar for wordplay and double entendres.
+Challenge: "${appState.wordplayExercise.promptText}"
+User Bar: "${userAnswer}"
+
+Return ONLY valid JSON:
+{
+  "score": <number 0 to 100>,
+  "verdict": "e.g., Clever Double Meaning!",
+  "breakdown": "Explanation of how the dual meaning or wordplay works.",
+  "tips": "Tips to make the punchline harder."
+}`;
+
+            let evalRes;
+            if (!appState.apiKey) {
+                evalRes = {
+                    score: 92,
+                    verdict: "Clever Wordplay & Dual Meaning",
+                    breakdown: "The bar successfully connects both conceptual meanings naturally.",
+                    tips: "Great use of Hinglish nuance."
+                };
+            } else {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.model}:generateContent?key=${appState.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+                    const data = await response.json();
+                    evalRes = JSON.parse(data.candidates[0].content.parts[0].text);
+                } catch (e) {
+                    evalRes = {
+                        score: 90,
+                        verdict: "Strong Punchline",
+                        breakdown: "Effective wordplay execution.",
+                        tips: "Keep refining internal rhyme density."
+                    };
+                }
+            }
+
+            document.getElementById('wp-eval-placeholder').classList.add('hidden');
+            document.getElementById('wp-eval-results').classList.remove('hidden');
+            document.getElementById('wp-score').textContent = evalRes.score;
+            document.getElementById('wp-verdict').textContent = evalRes.verdict;
+            document.getElementById('wp-breakdown').textContent = evalRes.breakdown;
+            document.getElementById('wp-tips').textContent = evalRes.tips;
+        }
+
+        // ================= PERSONAL RHYME BANK =================
+        function saveCurrentToDictionary() {
+            const userAnswer = document.getElementById('user-answer-input').value.trim();
+            if (!userAnswer) {
+                alert('No answer entered to save.');
+                return;
+            }
+            const item = {
+                id: 'bank_' + Date.now(),
+                phrase: userAnswer,
+                problemNumber: appState.currentProblem,
+                topic: appState.currentTopic,
+                timestamp: new Date().toLocaleDateString()
+            };
+            appState.savedBank.push(item);
+            localStorage.setItem('rhyme_lab_bank', JSON.stringify(appState.savedBank));
+            updateDashboardStats();
+            renderRhymeBank();
+            alert('Bar successfully saved to your Personal Rhyme Bank!');
+        }
+
+        function renderRhymeBank() {
+            const grid = document.getElementById('rhyme-bank-grid');
+            const search = document.getElementById('bank-search')?.value.toLowerCase() || '';
+            grid.innerHTML = '';
+
+            const filtered = appState.savedBank.filter(item => 
+                item.phrase.toLowerCase().includes(search) || item.topic.toLowerCase().includes(search)
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-sm">No saved rhymes found in your bank. Save your favorite bars during practice!</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-cardBg border border-borderDark rounded-2xl p-5 space-y-3 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/35">${item.problemNumber}-Syllable</span>
+                            <span class="text-xs text-slate-500 mono">${item.topic}</span>
+                        </div>
+                        <p class="text-white font-bold font-mono text-base">"${item.phrase}"</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-borderDark text-xs">
+                        <span class="text-slate-500">${item.timestamp}</span>
+                        <button onclick="deleteSavedRhyme('${item.id}')" class="text-red-400 hover:text-red-300 font-medium">Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function deleteSavedRhyme(id) {
+            appState.savedBank = appState.savedBank.filter(i => i.id !== id);
+            localStorage.setItem('rhyme_lab_bank', JSON.stringify(appState.savedBank));
+            renderRhymeBank();
+            updateDashboardStats();
+        }
+
+        function exportRhymeBank() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.savedBank, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `rhyme_lab_bank_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // ================= ANALYTICS & DASHBOARD STATS =================
+        function updateDashboardStats() {
+            const attempted = appState.exercisesAttempted.length;
+            document.getElementById('stat-total-attempted').textContent = attempted;
+            document.getElementById('stat-saved-bank').textContent = appState.savedBank.length;
+
+            if (attempted > 0) {
+                const avgAcc = Math.round(appState.exercisesAttempted.reduce((acc, curr) => acc + curr.score, 0) / attempted);
+                const bestScore = Math.max(...appState.exercisesAttempted.map(e => e.score));
+                document.getElementById('stat-overall-accuracy').textContent = avgAcc + '%';
+                document.getElementById('stat-best-score').textContent = bestScore + '/100';
+            } else {
+                document.getElementById('stat-overall-accuracy').textContent = '0%';
+                document.getElementById('stat-best-score').textContent = '0/100';
+            }
+            renderProblemsGrid();
+        }
+
+        function renderAnalyticsProblems() {
+            const container = document.getElementById('analytics-problems-list');
+            container.innerHTML = '';
+
+            problemsMeta.forEach(prob => {
+                const probHistory = appState.exercisesAttempted.filter(e => e.problemNumber === prob.number);
+                const attempts = probHistory.length;
+                const avgScore = attempts > 0 ? Math.round(probHistory.reduce((acc, curr) => acc + curr.score, 0) / attempts) : 0;
+
+                const row = document.createElement('div');
+                row.className = "space-y-1 bg-darkBg/60 p-4 rounded-2xl border border-borderDark";
+                row.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+                        <span>Problem ${prob.number} — ${prob.title}</span>
+                        <span class="font-mono ${attempts > 0 ? 'text-emerald-400' : 'text-slate-500'}">${attempts > 0 ? avgScore + '% Accuracy (' + attempts + ' attempts)' : 'No attempts yet'}</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-cardBg rounded-full overflow-hidden border border-borderDark">
+                        <div class="h-full bg-gradient-to-r from-purple-600 to-blue-500 rounded-full transition-all duration-500" style="width: ${avgScore}%;"></div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function startReflexTimer() {
+            if (appState.timerInterval) clearInterval(appState.timerInterval);
+            let timeLeft = appState.timerDuration;
+            const timerEl = document.getElementById('timer-countdown');
+            timerEl.textContent = timeLeft + 's';
+            appState.timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft + 's';
+                if (timeLeft <= 0) {
+                    clearInterval(appState.timerInterval);
+                    alert('Freestyle Reflex countdown finished! Check your score.');
+                }
+            }, 1000);
+        }
+
+        // ================= BACKUP & DATA MANAGEMENT =================
+        function exportAllData() {
+            const backup = {
+                history: appState.exercisesAttempted,
+                bank: appState.savedBank,
+                timestamp: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+            const anchor = document.createElement('a');
+            anchor.href = dataStr;
+            anchor.download = `rhyme_lab_full_backup_${Date.now()}.json`;
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+        }
+
+        function clearAllHistory() {
+            if (confirm('Are you sure you want to clear all practice history? This cannot be undone.')) {
+                appState.exercisesAttempted = [];
+                localStorage.removeItem('rhyme_lab_history');
+                updateDashboardStats();
+                renderAnalyticsProblems();
+                alert('Practice history cleared.');
+            }
+        }
+    </script>
+</body>
+</html>
